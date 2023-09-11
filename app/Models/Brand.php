@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Brand extends Model
 {
@@ -12,4 +13,9 @@ class Brand extends Model
 
     protected $table = 'brands';
     protected $guarded = [];
+
+
+    public function products(){
+        return $this->hasMany(Product::class);
+    }
 }

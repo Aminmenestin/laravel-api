@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('brand_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('image');
-            $table->text('description');
+            $table->string('primary_image');
+            $table->text('description')->nullable();
             $table->unsignedInteger('price');
             $table->unsignedInteger('quantity');
             $table->integer('delivery_amount')->nullable();

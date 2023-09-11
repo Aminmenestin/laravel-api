@@ -1,20 +1,23 @@
 <?php
-
-
 namespace App\Traits;
 
-trait ApiResponse{
-    public function successResponse($data , $code , $message = null){
+trait ApiResponse
+{
+
+    protected function successResponse($data , $code , $message = null){
         return response()->json([
             'status' => 'success',
             'message' => $message,
+            'status_code' => $code,
             'data' => $data
         ],$code);
     }
-    public function errorResponse($code , $message = null){
+
+    protected function errorResponse($message = null ,$code){
         return response()->json([
-            'status' => 'success',
+            'status' => 'error',
             'message' => $message,
+            'status_code' => $code,
         ],$code);
     }
 }

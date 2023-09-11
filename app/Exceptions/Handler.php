@@ -2,11 +2,18 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Error;
+use Exception;
 use Throwable;
+use TypeError;
+use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponse;
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
@@ -26,5 +33,32 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request , Throwable $e ){
+
+        if($e instanceof TypeError){
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage(),422 );
+        }
+        if($e instanceof MethodNotAllowedException){
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage(),500 );
+        }
+        if($e instanceof Exception){
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage(),500 );
+        }
+        if($e instanceof Error){
+            DB::rollBack();
+            return $this->errorResponse($e->getMessage(),500 );
+        }
+
+        if(config('app.debug')){
+            return parent::render($request , $e);
+        }
+        DB::rollBack();
+        return $this->errorResponse($e->getMessage(), 500 );
+
     }
 }

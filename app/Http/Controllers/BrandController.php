@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
@@ -16,7 +15,13 @@ class BrandController extends ApiController
      */
     public function index()
     {
-        return 'ok';
+        $brands = Brand::paginate(10);
+
+        return $this->successResponse([
+            'brands' => brandResource::collection($brands) ,
+            'links' => brandResource::collection($brands)->response()->getData()->links,
+            'meta' => brandResource::collection($brands)->response()->getData()->meta,
+        ], 201);
     }
 
     /**
@@ -24,22 +29,21 @@ class BrandController extends ApiController
      */
     public function store(Request $request)
     {
-        return 'ok';
         $validator = Validator::make($request->all() , [
             'name' => 'required',
             'display_name' => 'required',
         ]);
 
         if($validator->fails()){
-            $this->errorResponse(new brandResource($validator->messages()) , 400);
+            return $this->errorResponse($validator->messages() , 400);
         }
 
-        $user = User::create([
+        $brand = Brand::create([
             'name' => $request->name,
             'display_name' => $request->display_name,
         ]);
 
-        return $this->successResponse(new brandResource($user) , 200);
+        return $this->successResponse(new brandResource($brand) , 201);
     }
 
     /**
@@ -47,7 +51,7 @@ class BrandController extends ApiController
      */
     public function show(Brand $brand)
     {
-        //
+        return $this->successResponse(new brandResource(Brand::find($brand)) , 201);
     }
 
     /**
@@ -55,7 +59,21 @@ class BrandController extends ApiController
      */
     public function update(Request $request, Brand $brand)
     {
-        //
+        $validator = Validator::make($request->all() , [
+            'name' => 'required',
+            'display_name' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return  $this->errorResponse($validator->messages() , 400);
+        }
+
+        $brand->update([
+            'name' => $request->name,
+            'display_name' => $request->display_name,
+        ]);
+
+        return $this->successResponse(new brandResource($brand) , 201);
     }
 
     /**
@@ -63,6 +81,12 @@ class BrandController extends ApiController
      */
     public function destroy(Brand $brand)
     {
-        //
+        $brand->delete();
+
+        return $this->successResponse(new brandResource($brand) , 201);
+    }
+
+    public function products(Brand $brand){
+        return $this->successResponse(new brandResource($brand->load('products')) , 201);
     }
 }
